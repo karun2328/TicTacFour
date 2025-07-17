@@ -1,0 +1,15 @@
+{
+    "board": [],
+    "size": 3,
+    "win": {"over": false, "location": null, "direction": null},
+    "turn": 0,
+    "currentPlayer": "O",
+    "messages": {
+
+        "active": "It's your turn",
+        "oponent": "Opponent is playing",
+        "oWin": "You lose :(",
+        "pwin": "You Win!",
+        "tie": "It's a tie :|"  
+    }
+}
