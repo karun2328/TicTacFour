@@ -141,24 +141,6 @@ export function drawDiceRoll(handleDiceGuess, windowState, gameState) {
     msg.innerHTML = "Enter your guess for the dice roll";
 }
 
-export function drawStartScreeen(openFile, createFile, gameState, windowState) {
-    const msg = document.getElementById("msg");
-    const btn = document.getElementById("btn");
-    const btn2 = document.getElementById("btn2");
-    btn2.classList.remove("hidden");
-
-    btn2.innerHTML = "Join Game";
-    const board = document.getElementById("board");
-    board.classList.add("hidden");
-    msg.innerHTML = "In order to play. Please create or join a game";
-    btn.innerHTML = "Create Game";
-    btn.addEventListener("click", async () => {
-        await createFile(gameState, windowState);
-    });
-    btn2.addEventListener("click", async () => {
-        await openFile(gameState, windowState);
-    });
-}
 
 function chooseMessage(boardState, windowState, messages) {
     console.log(messages);

@@ -1,0 +1,19 @@
+{
+  "size": 4,
+  "board": [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+  ],
+  "win": {
+    "over": false,
+    "location": null,
+    "direction": null
+  },
+  "turn": 0,
+  "currentPlayer": "O",
+  "started": false,
+  "window1": null,
+  "window2": null
+}

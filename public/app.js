@@ -5,10 +5,10 @@ Date: June 29 2025
 Description: Simple  tic tac toe game in two separate browser instances
 */
 
-import { drawBoard, drawDiceRoll, drawStartScreeen } from "./ui.js";
+import { drawBoard } from "./ui.js";
 import { makeMove, checkWin } from "./gameLogic.js";
-import { saveState, loadState, openFile, createFile } from "./states.js";
-import { defaultGameState } from "../TicTacFourcp/startDefault.js";
+import { saveState, loadState} from "./states.js";
+import { defaultGameState } from "./startDefault.js";
 
 let gameState = defaultGameState;
 
@@ -25,26 +25,25 @@ gameState = defaultGameState;
 console.log(gameState);
 let windowState = { fileOpened: false, thisPlayer: null };
 
-drawStartScreeen(openFile, createFile, gameState, windowState);
+drawBoard(gameState, handleCellClick, handleCellClick, messages, windowState)
+
 
 windowState.forceCheck = true;
 setInterval(async () => {
     const loaded = await loadState(defaultGameState);
     //We check if the json has changed
 
-    if (windowState.fileOpened) {
-        if (
+    windowState.forceCheck = false;
+
+    gameState = loaded;
+    if (
             JSON.stringify(loaded) !== JSON.stringify(gameState) ||
             windowState.forceCheck
-        ) {
-            windowState.forceCheck = false;
+        ){
 
-            gameState = loaded;
             console.log("Something changed");
-            console.log("Guess1 : ", gameState.guess1);
-            console.log("Guess2 : ", gameState.guess2);
             console.log(windowState);
-
+            
             //If the game has already started,XS
             if (gameState && gameState.started) {
                 //If the player hasn't been assigned a token yet, we assign it
@@ -67,14 +66,10 @@ setInterval(async () => {
                     messages,
                     windowState
                 );
-            } else {
-                drawDiceRoll(handleDiceGuess, windowState, gameState);
-                windowState.forceCheck = false;
-            }
+            } 
         }
-    } else {
-        drawStartScreeen(openFile, createFile, gameState, windowState);
-    }
+        
+    
 }, 1000);
 
 async function handleCellClick(r, c, gameState, windowState, handleCellClick) {
