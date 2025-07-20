@@ -1,138 +1,129 @@
-/*
-Tic Tac Toe accross browsers
-Author: Maripi Maluenda
-Date: June 29 2025
-Description: Simple  tic tac toe game in two separate browser instances
-*/
+// app.js
+import {
+  createBoard,
+  updateBoard,
+  updateMessage,
+  updatePlayerText,
+  showPlayerNumber,
+  setFlipButtonState
+} from './ui.js';
 
-import { drawBoard } from "./ui.js";
-import { makeMove, checkWin } from "./gameLogic.js";
-import { saveState, loadState} from "./states.js";
-import { defaultGameState } from "./startDefault.js";
+import { saveState, loadState } from './states.js';
+import { getInitialState } from './startDefault.js';
+import { checkWin, isBoardFull } from './gameLogic.js';
 
-let gameState = defaultGameState;
+let state = await loadState() || getInitialState();
+let myId = sessionStorage.getItem('myId');
 
-const messages = {
-    active: "It's your turn",
-    opponent: "Opponent is playing",
-    oWin: "You lose :(",
-    pWin: "You Win!",
-    tie: "It's a tie :|",
-};
-let thisPlayer = null;
-gameState = defaultGameState;
-
-console.log(gameState);
-let windowState = { fileOpened: false, thisPlayer: null };
-
-drawBoard(gameState, handleCellClick, handleCellClick, messages, windowState)
-
-
-windowState.forceCheck = true;
-setInterval(async () => {
-    const loaded = await loadState(defaultGameState);
-    //We check if the json has changed
-
-    windowState.forceCheck = false;
-
-    gameState = loaded;
-    if (
-            JSON.stringify(loaded) !== JSON.stringify(gameState) ||
-            windowState.forceCheck
-        ){
-
-            console.log("Something changed");
-            console.log(windowState);
-            
-            //If the game has already started,XS
-            if (gameState && gameState.started) {
-                //If the player hasn't been assigned a token yet, we assign it
-                console.log("The game is happening");
-                if (!windowState.thisPlayer) {
-                    console.log("We don't have a token!");
-                    if (gameState.firstPlayer == windowState.thisWindow) {
-                        console.log("We are the first player");
-                        windowState.thisPlayer = "O";
-                    } else {
-                        console.log("We are the second player");
-                        windowState.thisPlayer = "X";
-                    }
-                    console.log(windowState);
-                }
-                drawBoard(
-                    gameState,
-                    handleCellClick,
-                    handleClear,
-                    messages,
-                    windowState
-                );
-            } 
-        }
-        
-    
-}, 1000);
-
-async function handleCellClick(r, c, gameState, windowState, handleCellClick) {
-    console.log("Clicked ", r, c);
-    try {
-        if (makeMove(gameState, r, c, windowState)) {
-            gameState = checkWin(gameState, windowState.thisPlayer);
-
-            drawBoard(
-                gameState,
-                handleCellClick,
-                handleClear,
-                messages,
-                windowState
-            );
-            await saveState(gameState);
-        }
-    } catch (error) {
-        console.warn(error.message);
-    }
+if (!myId) {
+  myId = crypto.randomUUID();
+  sessionStorage.setItem('myId', myId);
 }
 
-async function handleDiceGuess(gameState, windowState, val) {
-    console.log("Guessing ");
-    console.log(val);
-    const btn = document.getElementById("btn");
-    const msg = document.getElementById("msg");
-    windowState.guessed = true;
-    if (gameState.guess1) {
-        windowState.thisWindow = 2;
-        console.log("Both players have guessed, rolling:");
-        gameState.guess2 = val;
-        let diceRoll = Math.floor(Math.random() * 6 + 1);
-        console.log("dice roll: ", diceRoll);
-        let distance1 = Math.abs(gameState.guess1 - diceRoll);
-        let distance2 = Math.abs(gameState.guess2 - diceRoll);
-        if (distance1 == distance2) {
-            console.log("Tie");
-            gameState.guess1 = null;
-            gameState.guess2 = null;
-            windowState.guessed = false;
-        } else if (distance1 > distance2) {
-            windowState.thisPlayer = "O";
-            gameState.firstPlayer = 2;
-            gameState.started = true;
-        } else {
-            windowState.thisPlayer = "X";
-            gameState.firstPlayer = 1;
-            gameState.started = true;
-        }
+if (!localStorage.getItem('playerOrder')) {
+  localStorage.setItem('playerOrder', JSON.stringify([myId]));
+} else {
+  const order = JSON.parse(localStorage.getItem('playerOrder'));
+  if (!order.includes(myId) && order.length < 2) {
+    order.push(myId);
+    localStorage.setItem('playerOrder', JSON.stringify(order));
+  }
+}
+
+function getPlayerNumber() {
+  const order = JSON.parse(localStorage.getItem('playerOrder'));
+  return order.indexOf(myId);
+}
+
+function isMyTurn() {
+  return state.currentTurn === state.playerRole;
+}
+
+function assignRoles(coinResult) {
+  const playerOrder = JSON.parse(localStorage.getItem('playerOrder'));
+  const player1 = playerOrder[0];
+  const player2 = playerOrder[1];
+
+  const assignToPlayer1 = coinResult === 'heads' ? 'X' : 'O';
+  const assignToPlayer2 = assignToPlayer1 === 'X' ? 'O' : 'X';
+
+  state.players[player1] = assignToPlayer1;
+  state.players[player2] = assignToPlayer2;
+
+  state.playerRole = myId === player1 ? assignToPlayer1 : assignToPlayer2;
+  state.currentTurn = 'X';
+  state.flipped = true;
+
+  saveState(state);
+  updateUI();
+}
+
+function updateUI() {
+  createBoard(state.board, handleMove);
+  updateBoard(state.board);
+  updatePlayerText(state.playerRole || '-');
+
+  const myPos = getPlayerNumber();
+  showPlayerNumber(myPos);
+
+  const btn = document.getElementById("btn");
+
+  if (!state.flipped) {
+    if (myPos === 0) {
+      updateMessage("Click Flip Coin to start.");
+      setFlipButtonState(true);
     } else {
-        gameState.guess1 = val;
-        msg.innerHTML = "Waiting for opponent";
-        btn.disabled = true;
-        windowState.thisWindow = 1;
+      updateMessage("Waiting for opponent to flip the coin...");
+      setFlipButtonState(false);
     }
-    saveState(gameState);
-    windowState.forceCheck = true;
+    return;
+  }
+
+  if (state.winner) {
+    updateMessage(state.winner === 'draw' ? "It's a draw!" : `${state.winner} wins!`);
+  } else {
+    updateMessage(isMyTurn() ? "Your turn" : "Opponent's turn");
+  }
+
+  setFlipButtonState(false);
 }
 
-async function handleClear() {
-    gameState = defaultGameState;
-    gameState.fileOpened = true;
-    gameState.started = true;
-    saveState(gameState);
+function handleMove(index) {
+  if (!state.flipped || !isMyTurn() || state.board[index] !== 0 || state.winner) return;
+
+  state.board[index] = state.playerRole;
+
+  const updated = checkWin({ board: state.board, turn: state.turn, win: { over: false } }, state.playerRole);
+  if (updated.win.over) {
+    state.winner = state.playerRole;
+  } else if (isBoardFull(state.board)) {
+    state.winner = 'draw';
+  } else {
+    state.currentTurn = state.currentTurn === 'X' ? 'O' : 'X';
+  }
+
+  saveState(state);
+  localStorage.setItem('syncUpdate', Date.now());
+  updateUI();
 }
+
+window.handleCoinFlip = () => {
+  const result = Math.random() < 0.5 ? 'heads' : 'tails';
+  assignRoles(result);
+};
+
+window.handleClear = () => {
+  state = getInitialState();
+  localStorage.removeItem('playerOrder');
+  sessionStorage.removeItem('myId');
+  saveState(state);
+  localStorage.setItem('syncUpdate', Date.now());
+  location.reload();
+};
+
+window.addEventListener("storage", async () => {
+  state = await loadState();
+  updateUI();
+});
+
+updateUI();

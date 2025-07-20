@@ -1,35 +1,30 @@
-import { defaultGameState } from "./startDefault.js";
+// states.js
+// Handles saving and loading the game state to/from localStorage
 
-/*
-API managment for Tic Tac Toe accross browsers
-Author: Maripi Maluenda
-Date: June 29 2025
-Description: File System Access API for tic tac toe game in two separate browser instances
-*/
+const STORAGE_KEY = "tic-tac-two-state";
 
-export async function loadState(gameState) {
+/**
+ * Save game state to storage
+ * @param {Object} state - Game state object to be saved
+ */
+export async function saveState(state) {
     try {
-            const response = await fetch("/gameState");
-            if (!response.ok) throw new Error("fetch failed");
-            const gameState = await response.json();
-            // console.log("gameState received from server:", gameState);
-            return gameState;
-        } catch (error) {
-            console.error("Error fetching gameState:", error);
-            return null
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+        console.error("Failed to save state:", e);
     }
 }
 
-export async function saveState(gameState) {
+/**
+ * Load game state from storage
+ * @returns {Object|null} - Loaded game state or null if not found
+ */
+export async function loadState() {
     try {
-        await fetch("/gameState", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(gameState),
-        });
-        console.log("gameState sent to server:", gameState);
-    } catch (error) {
-        console.error("Error sending gameState:", error);
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        console.error("Failed to load state:", e);
+        return null;
     }
 }
-
