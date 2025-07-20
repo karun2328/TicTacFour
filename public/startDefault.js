@@ -1,4 +1,4 @@
-//Default starting situation for a 3x3 board
+//Default starting situation for a 4x4 board
 export const defaultGameState = {
     size: 4,
     board: Array.from({ length: 4 }, () => Array(4).fill(0)),
@@ -10,8 +10,8 @@ export const defaultGameState = {
     turn: 0,
     currentPlayer: "O",
     started: false,
-    diceRoll: null,
-    guess1: null,
-    guess2: null,
-    fileOpened: 0
+    numWindow: 0,
+    flipResult: null,
+    needForReset: 0,
+    firstPlayer: null
 };

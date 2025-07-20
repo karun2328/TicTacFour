@@ -1,4 +1,3 @@
-import { defaultGameState } from "./startDefault.js";
 
 /*
 API managment for Tic Tac Toe accross browsers
@@ -11,9 +10,12 @@ export async function loadState(gameState) {
     try {
             const response = await fetch("/gameState");
             if (!response.ok) throw new Error("fetch failed");
-            const gameState = await response.json();
+            const loaded = await response.json();
+            if(!loaded || !Array.isArray(loaded.board)){
+                return structuredClone(gameState)
+            }
             // console.log("gameState received from server:", gameState);
-            return gameState;
+            return loaded
         } catch (error) {
             console.error("Error fetching gameState:", error);
             return null

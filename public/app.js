@@ -5,12 +5,12 @@ Date: June 29 2025
 Description: Simple  tic tac toe game in two separate browser instances
 */
 
-import { drawBoard } from "./ui.js";
+import { drawBoard, drawCoinFlip, drawFirstPlayer } from "./ui.js";
 import { makeMove, checkWin } from "./gameLogic.js";
 import { saveState, loadState} from "./states.js";
 import { defaultGameState } from "./startDefault.js";
 
-let gameState = defaultGameState;
+let gameState;
 
 const messages = {
     active: "It's your turn",
@@ -19,13 +19,11 @@ const messages = {
     pWin: "You Win!",
     tie: "It's a tie :|",
 };
-let thisPlayer = null;
-gameState = defaultGameState;
 
-console.log(gameState);
 let windowState = { fileOpened: false, thisPlayer: null };
+let states = {window: windowState, game: gameState};
 
-drawBoard(gameState, handleCellClick, handleCellClick, messages, windowState)
+
 
 
 windowState.forceCheck = true;
@@ -33,15 +31,15 @@ setInterval(async () => {
     const loaded = await loadState(defaultGameState);
     //We check if the json has changed
 
-    windowState.forceCheck = false;
-
+    
     gameState = loaded;
     if (
             JSON.stringify(loaded) !== JSON.stringify(gameState) ||
             windowState.forceCheck
         ){
-
+            states.game = gameState
             console.log("Something changed");
+            console.log(gameState)
             console.log(windowState);
             
             //If the game has already started,XS
@@ -59,80 +57,96 @@ setInterval(async () => {
                     }
                     console.log(windowState);
                 }
-                drawBoard(
-                    gameState,
-                    handleCellClick,
-                    handleClear,
-                    messages,
-                    windowState
-                );
-            } 
+                
+                // drawBoard(s
+                //     states,
+                //     handleCellClick,
+                //     handleClear,
+                //     messages,
+                // );
+            }else if(gameState){
+                console.log("Here")
+
+                if(!windowState.thisWindow){
+                    console.log(windowState)
+                    drawFirstPlayer(handleFlip, handleChoice, fullReset, states)
+                    windowState.forceCheck = false
+                }
+            }
         }
+       
         
     
-}, 1000);
+}, 5000);
 
-async function handleCellClick(r, c, gameState, windowState, handleCellClick) {
+async function handleCellClick(r, c, states, handleCellClick) {
     console.log("Clicked ", r, c);
     try {
-        if (makeMove(gameState, r, c, windowState)) {
-            gameState = checkWin(gameState, windowState.thisPlayer);
+        if (makeMove(gameState, r, c, states.window)) {
+            gameState = checkWin(gameState, states.window.thisPlayer);
 
             drawBoard(
-                gameState,
+                states,
                 handleCellClick,
                 handleClear,
                 messages,
-                windowState
+                
             );
-            await saveState(gameState);
+            await saveState(states.game);
         }
     } catch (error) {
         console.warn(error.message);
     }
 }
 
-async function handleDiceGuess(gameState, windowState, val) {
-    console.log("Guessing ");
-    console.log(val);
-    const btn = document.getElementById("btn");
-    const msg = document.getElementById("msg");
-    windowState.guessed = true;
-    if (gameState.guess1) {
-        windowState.thisWindow = 2;
-        console.log("Both players have guessed, rolling:");
-        gameState.guess2 = val;
-        let diceRoll = Math.floor(Math.random() * 6 + 1);
-        console.log("dice roll: ", diceRoll);
-        let distance1 = Math.abs(gameState.guess1 - diceRoll);
-        let distance2 = Math.abs(gameState.guess2 - diceRoll);
-        if (distance1 == distance2) {
-            console.log("Tie");
-            gameState.guess1 = null;
-            gameState.guess2 = null;
-            windowState.guessed = false;
-        } else if (distance1 > distance2) {
-            windowState.thisPlayer = "O";
-            gameState.firstPlayer = 2;
-            gameState.started = true;
-        } else {
-            windowState.thisPlayer = "X";
-            gameState.firstPlayer = 1;
-            gameState.started = true;
-        }
-    } else {
-        gameState.guess1 = val;
-        msg.innerHTML = "Waiting for opponent";
-        btn.disabled = true;
-        windowState.thisWindow = 1;
-    }
-    saveState(gameState);
-    windowState.forceCheck = true;
-}
+
 
 async function handleClear() {
-    gameState = defaultGameState;
-    gameState.fileOpened = true;
+    gameState = structuredClone(defaultGameState);
     gameState.started = true;
     saveState(gameState);
+}
+
+async function handleFlip(states) {
+    states.game.flipResult = Math.round(Math.random()) == 1 ? "Heads" : "Tails"
+    console.log(gameState.flipResult);
+    console.log(states.game)
+    if(states.game.choice){
+        console.log('choice ${states.game.choice}');
+        if(states.game.flipResult == states.game.choice){
+            states.window.thisPlayer = 'X';
+            states.game.firstPlayer = 1;
+        } else {
+            states.window.thisPlayer = 'O';
+            states.game.firstPlayer = 2;
+        }
+        states.game.started = true;
+    } 
+    saveState(states.game)
+
+}
+async function handleChoice(choice, states) {
+    console.log(choice);
+    console.log(states);
+    states.game.guess = choice;
+    if(states.game.flipResult){
+        console.log('flip ${states.game.flipResult}');
+        if(states.game.flipResult == choice){
+            states.window.thisPlayer = 'O';
+            states.game.firstPlayer = 1;
+        } else {
+            states.window.thisPlayer = 'X';
+            states.game.firstPlayer = 2;
+        }
+        states.game.started = true;
+    } 
+    saveState(states.game)
+
+
+}
+async function fullReset(states){
+    states.game = structuredClone(defaultGameState);
+    states.window = {thisPlayer: null};
+    saveState(states.game);
+    drawFirstPlayer(handleFlip, handleChoice, fullReset, states)
 }
