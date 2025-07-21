@@ -12,6 +12,7 @@ export const defaultGameState = {
     started: false,
     numWindow: 0,
     flipResult: null,
-    needForReset: 0,
-    firstPlayer: null
+
+    firstPlayer: null,
+    guess: null
 };

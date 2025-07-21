@@ -11,24 +11,26 @@ Description: Simple game logic for tic tac toe game in two separate browser inst
  * @param {string} player - 'X' for human or 'O' for computer
  * @returns {[number, number]} Coordenates of the cell to either block or complete the line
  */
-export function makeMove(boardState, r, c, windowState) {
-    if (boardState.currentPlayer != windowState.thisPlayer) {
+export function makeMove(states, r, c) {
+    console.log("Making a move");
+
+    if (states.game.currentPlayer != states.window.thisPlayer) {
         console.log("It's not your turn");
         return false;
     }
-    if (boardState.win.over) {
+    if (states.game.win.over) {
         console.log("Game is over");
         return false;
     }
-    if (boardState.board[r][c] != 0) {
+    if (states.game.board[r][c] != 0) {
         console.log("That cell is not available ");
         return false;
     }
-    console.log("Doing a turn properly")
-    windowState.forceCheck = true;
-    boardState.board[r][c] = windowState.thisPlayer;
-    boardState.turn = boardState.turn + 1;
-    boardState.currentPlayer = boardState.currentPlayer == "O" ? "X" : "O";
+
+    states.window.forceCheck = true;
+    states.game.board[r][c] = states.window.thisPlayer;
+    states.game.turn = states.game.turn + 1;
+    states.game.currentPlayer = states.game.currentPlayer == "O" ? "X" : "O";
 
     return true;
 }

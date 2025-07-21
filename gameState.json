@@ -1,1 +1,1 @@
-{"size":4,"board":[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]],"win":{"over":false,"location":null,"direction":null},"turn":0,"currentPlayer":"O","started":false,"numWindow":1,"flipResult":null,"needForReset":0,"firstPlayer":null}
+{"size":4,"board":[[0,0,0,"O"],[0,0,"X",0],[0,0,0,0],[0,0,0,0]],"win":{"over":false,"location":null,"direction":null},"turn":2,"currentPlayer":"O","started":true,"numWindow":2,"flipResult":"Heads","firstPlayer":2,"guess":"Tails"}
