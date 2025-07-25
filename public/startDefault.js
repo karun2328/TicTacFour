@@ -17,7 +17,7 @@ export const defaultGameState = {
     playerO: null,             // UUID of player assigned O
     activePlayers: [],         // Stores UUIDs of connected browsers
     firstPlayer: null,         // Tracks who goes first
-    fileOpened: 0              // Tracks file open count (if needed)
+    
 };
 
 //  Add this function to create a fresh state copy
