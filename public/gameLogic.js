@@ -86,6 +86,7 @@ export function checkWin(boardState, player) {
 
     return boardState;
 }
+
 export function isBoardFull(board) {
     return board.every(row => row.every(cell => cell !== 0));
 }

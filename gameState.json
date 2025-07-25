@@ -1,1 +1,16 @@
-{"size":4,"board":[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]],"win":{"over":false,"location":null,"direction":null},"turn":0,"currentPlayer":"O","started":false,"coinChoice1":null,"coinChoice2":null,"coinResult":null,"playerX":null,"playerO":null,"activePlayers":["05de208d-a8cc-4590-a822-5d26a47bf5ee"],"firstPlayer":null,"fileOpened":0}
+{
+  "size": 4,
+  "board": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+  "win": { "over": false, "location": null, "direction": null },
+  "turn": 0,
+  "currentPlayer": "O",
+  "started": false,
+  "coinChoice1": null,
+  "coinChoice2": null,
+  "coinResult": null,
+  "playerX": null,
+  "playerO": null,
+  "activePlayers": ["05de208d-a8cc-4590-a822-5d26a47bf5ee"],
+  "firstPlayer": null,
+  "fileOpened": 0
+}

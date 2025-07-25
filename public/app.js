@@ -1,3 +1,4 @@
+
 // app.js
 import {
   createBoard,
@@ -127,3 +128,4 @@ window.addEventListener("storage", async () => {
 });
 
 updateUI();
+
