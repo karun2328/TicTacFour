@@ -1,92 +1,114 @@
 /*
 Game Logic for Tic Tac Toe across browsers
-Author: Maripi Maluenda | Updated by Karun
-Description: Handles move validation and win detection
+Author: Maripi M
+Date: June 29, 2025
+Description: Game logic for Tic Tac Toe with helper added, functionality untouched
 */
 
-export function makeMove(boardState, r, c, windowState) {
-    if (boardState.currentPlayer !== windowState.thisPlayer) {
-        console.log("It's not your turn.");
+/**
+ * Handles a player move
+ * @param {Object} states - full states object
+ * @param {number} r - row clicked
+ * @param {number} c - column clicked
+ * @returns {boolean} whether move was successful
+ */
+export function makeMove(states, r, c) {
+    console.log("Making a move");
+
+    if (states.game.currentPlayer !== states.window.thisPlayer) {
+        console.log("It's not your turn");
         return false;
     }
-    if (boardState.win.over) {
-        console.log("Game is already over.");
+    if (states.game.win.over) {
+        console.log("Game is over");
         return false;
     }
-    if (boardState.board[r][c] !== 0) {
-        console.log("Cell is already occupied.");
+    if (states.game.board[r][c] !== 0) {
+        console.log("That cell is not available");
         return false;
     }
 
-    boardState.board[r][c] = windowState.thisPlayer;
-    boardState.turn += 1;
-    boardState.currentPlayer = boardState.currentPlayer === "X" ? "O" : "X";
-    windowState.forceCheck = true;
+    states.window.forceCheck = true;
+    states.game.board[r][c] = states.window.thisPlayer;
+    states.game.turn++;
+    states.game.currentPlayer = states.game.currentPlayer === "O" ? "X" : "O";
 
     return true;
 }
 
-export function checkWin(boardState, player) {
-    const size = boardState.size;
-    const board = boardState.board;
+/**
+ * Checks if the current player has won
+ * @param {Object} boardSt - current game state
+ * @param {string} player - 'X' or 'O'
+ * @returns {Object} updated board state with win status
+ */
+export function checkWin(boardSt, player) {
+    console.log("Checking Win");
+    const numRows = boardSt.size;
+    let complete = true;
 
-    // Check horizontal rows
-    for (let row = 0; row < size; row++) {
-        if (board[row].every(cell => cell === player)) {
-            boardState.win = { direction: "h", location: row, over: true };
-            return boardState;
-        }
+    // Check horizontal
+    for (let i = 0; i < numRows; i++) {
+        complete = boardSt.board[i].every(cell => cell === player);
+        if (complete) return setWin(boardSt, "h", i);
     }
 
-    // Check vertical columns
-    for (let col = 0; col < size; col++) {
-        let winCol = true;
-        for (let row = 0; row < size; row++) {
-            if (board[row][col] !== player) {
-                winCol = false;
+    // Check vertical
+    for (let i = 0; i < numRows; i++) {
+        complete = true;
+        for (let j = 0; j < numRows; j++) {
+            if (boardSt.board[j][i] !== player) {
+                complete = false;
                 break;
             }
         }
-        if (winCol) {
-            boardState.win = { direction: "v", location: col, over: true };
-            return boardState;
-        }
+        if (complete) return setWin(boardSt, "v", i);
     }
 
-    // Check main diagonal
-    let diag1 = true;
-    for (let i = 0; i < size; i++) {
-        if (board[i][i] !== player) {
-            diag1 = false;
+    // Check diagonal top-left to bottom-right
+    complete = true;
+    for (let j = 0; j < numRows; j++) {
+        if (boardSt.board[j][j] !== player) {
+            complete = false;
             break;
         }
     }
-    if (diag1) {
-        boardState.win = { direction: "d", location: 0, over: true };
-        return boardState;
-    }
+    if (complete) return setWin(boardSt, "d", 0);
 
-    // Check anti-diagonal
-    let diag2 = true;
-    for (let i = 0; i < size; i++) {
-        if (board[i][size - 1 - i] !== player) {
-            diag2 = false;
+    // Check diagonal bottom-left to top-right
+    complete = true;
+    for (let j = 0; j < numRows; j++) {
+        if (boardSt.board[numRows - 1 - j][j] !== player) {
+            complete = false;
             break;
         }
     }
-    if (diag2) {
-        boardState.win = { direction: "u", location: 0, over: true };
-        return boardState;
-    }
+    if (complete) return setWin(boardSt, "u", 0);
 
     // Check for tie
-    if (boardState.turn >= size * size) {
-        boardState.win = { direction: "n", location: 0, over: true };
+    if (boardSt.turn === numRows * numRows) {
+        return setWin(boardSt, "n", 0);
     }
 
-    return boardState;
+    return boardSt;
 }
 
-export function isBoardFull(board) {
-    return board.every(row => row.every(cell => cell !== 0));
+/**
+ * Sets the winning state in the board object
+ * @param {Object} boardSt - current board state
+ * @param {string} direction - h, v, d, u, n
+ * @param {number} location - row or column
+ * @returns {Object} updated board state
+ */
+function setWin(boardSt, direction, location) {
+    boardSt.win = { direction, location, over: true };
+    return boardSt;
+}
+
+/**
+ * Coin flip helper for future use
+ * @returns {string} "Heads" or "Tails"
+ */
+export function diceRoll() {
+    return Math.random() < 0.5 ? "Heads" : "Tails";
 }

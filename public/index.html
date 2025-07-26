@@ -3,61 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tic Tac Toe Multiplayer</title>
-  <style>
-    #board {
-      display: grid;
-      gap: 5px;
-      width: 300px;
-      height: 300px;
-      margin: 20px auto;
-    }
-    .cell {
-      background-color: #eee;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-    }
-    .refresh-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 20px;
-      padding: 5px 10px;
-      border: none;
-      background: none;
-      cursor: pointer;
-    }
-    #btn {
-      margin: 10px;
-      padding: 10px 20px;
-    }
-    #status {
-      text-align: center;
-      margin-top: 10px;
-    }
-  </style>
+  <title>Tic Tac Four</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" src="app.js" defer></script>
 </head>
 <body>
-  <h1 style="text-align:center">Tic Tac Toe</h1>
-
-  <button id="clear" class="refresh-btn" onclick="handleClear()" title="Reset Game">🔄</button>
-
-  <div id="status">
-    <div id="player-number"></div>
-    <div id="player-role"></div>
-    <div id="message"></div>
-  </div>
-
+  <h1>Tic Tac Four</h1>
+  <div id="player"></div>
   <div id="board"></div>
+  <div id="msg"></div>
 
-  <div style="text-align:center">
-    <button id="btn" onclick="handleCoinFlip()">Flip Coin</button>
+  <button id="btn">Play</button>
+  <button id="btn2" class="hidden">Play</button>
+
+  <!-- Moved outside to prevent nesting issues -->
+  <div style="position: absolute; top: 10px; right: 10px;">
+    <button id="clear" title="Reset Game">🔁</button>
   </div>
-
-  <script type="module" src="./app.js"></script>
 </body>
 </html>
